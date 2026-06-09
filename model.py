@@ -176,7 +176,63 @@ if predict_btn:
     st.pyplot(plt.gcf())
     plt.clf()
 
-    st.info("Positive values increase churn risk, negative values decrease it.")      
+    # explaination
+       # Top reasons
+    shap_df = pd.DataFrame({
+        "Feature": input_df.columns,
+        "SHAP Value": shap_values.values[0]
+    })
+
+    # positive -> churn increase
+    increase_df = shap_df[shap_df["SHAP Value"] > 0] .sort_values(by="SHAP Value", ascending=False)
+
+    # negative -> churn decrease
+    decrease_df = shap_df[shap_df["SHAP Value"] < 0] .sort_values(by="SHAP Value")  
+    st.subheader("📌 Prediction Explanation")
+
+    c1, c2 = st.columns(2)
+
+    # ── Reasons to churn
+    with c1:
+
+        st.subheader(f"""🚨 High-Risk Customer Indicators""")
+
+        for i in range(min(5, len(increase_df))):
+            feature = increase_df.iloc[i]["Feature"]
+            value = round(increase_df.iloc[i]["SHAP Value"], 3)
+
+            # st.write(f"• {feature} (+{value})")
+
+            if value>0.15:
+                st.warning(f"**⚠️ {feature} is strongly increasing the likelihood of customer churn.**")
+            elif value>0.07:
+                st.info(f"📌 {feature} is moderately contributing to churn risk.")
+
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
+    # ── Reasons NOT to churn
+    with c2:
+        st.subheader("🔐 Reasons Customer May Stay")
+
+        for i in range(min(5, len(decrease_df))):
+            feature = decrease_df.iloc[i]["Feature"]
+            value = round(decrease_df.iloc[i]["SHAP Value"], 3)
+
+            if value<-0.15:
+                st.success(f"✅ {feature} is strongly helping customer retention.")
+            elif value<-0.07:
+                st.info(f"💡 {feature} is moderately reducing churn risk.")
+
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
+
+
+
+        # st.info("Positive values increase churn risk, negative values decrease it.")      
 
     with col1:
         st.subheader("Prediction result")

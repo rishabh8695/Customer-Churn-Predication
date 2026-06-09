@@ -1,0 +1,51 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code files
+.vscode/
+.virtual_documents/
+
+# IDE/editor settings
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and runtime files
+*.log
+*.pid
+*.seed
+*.cover
+coverage.*
+
+# Python user environment
+.python-version
+
+# Model and artifact files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+
+# System files
+.DS_Store
+Thumbs.db

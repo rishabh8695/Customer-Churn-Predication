@@ -1,0 +1,207 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.carousel-wrapper { width: 100%; }
+.nav { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.nav button { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; }
+.nav button.active { background: #1D9E75; color: #04342C; border-color: #1D9E75; font-weight: 500; }
+.slide { display: none; border-radius: 16px; overflow: hidden; aspect-ratio: 1/1; width: 100%; max-width: 540px; margin: 0 auto; position: relative; }
+.slide.active { display: flex; flex-direction: column; }
+
+.s1 { background: #0f1117; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+.s1 .badge { background: rgba(29,158,117,0.15); border: 1px solid #1D9E75; color: #5DCAA5; font-size: 12px; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; display: inline-block; letter-spacing: 1px; }
+.s1 h1 { font-size: 36px; font-weight: 700; color: #fafafa; line-height: 1.2; margin-bottom: 16px; }
+.s1 h1 span { color: #1D9E75; }
+.s1 p { color: #888780; font-size: 15px; line-height: 1.6; }
+.s1 .bottom { position: absolute; bottom: 24px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 6px; }
+.s1 .dot { width: 6px; height: 6px; border-radius: 50%; background: #444; }
+.s1 .dot.a { background: #1D9E75; width: 20px; border-radius: 3px; }
+.s1 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+
+.s2 { background: #0f1117; padding: 36px; justify-content: center; }
+.s2 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+.s2 .tag { font-size: 11px; color: #1D9E75; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.s2 h2 { font-size: 26px; font-weight: 700; color: #fafafa; margin-bottom: 24px; line-height: 1.3; }
+.s2 .stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.s2 .stat { flex: 1; background: #1a1d27; border: 0.5px solid #2d2d2d; border-radius: 12px; padding: 16px; text-align: center; }
+.s2 .stat .num { font-size: 28px; font-weight: 700; color: #E24B4A; }
+.s2 .stat .lbl { font-size: 11px; color: #888780; margin-top: 4px; }
+.s2 .insight { background: rgba(29,158,117,0.08); border-left: 3px solid #1D9E75; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+.s2 .insight p { color: #9FE1CB; font-size: 13px; line-height: 1.6; }
+
+.s3 { background: #0f1117; padding: 36px; justify-content: center; }
+.s3 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+.s3 .tag { font-size: 11px; color: #1D9E75; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.s3 h2 { font-size: 26px; font-weight: 700; color: #fafafa; margin-bottom: 24px; }
+.s3 .pipeline { display: flex; flex-direction: column; gap: 10px; }
+.s3 .step { display: flex; align-items: center; gap: 14px; background: #1a1d27; border: 0.5px solid #2d2d2d; border-radius: 10px; padding: 12px 16px; }
+.s3 .step-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.s3 .step-text { flex: 1; }
+.s3 .step-title { font-size: 13px; font-weight: 500; color: #fafafa; }
+.s3 .step-sub { font-size: 11px; color: #888780; margin-top: 2px; }
+
+.s4 { background: #0f1117; padding: 36px; justify-content: center; }
+.s4 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+.s4 .tag { font-size: 11px; color: #1D9E75; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.s4 h2 { font-size: 22px; font-weight: 700; color: #fafafa; margin-bottom: 16px; }
+.s4 .code-block { background: #1a1d27; border: 0.5px solid #2d2d2d; border-radius: 12px; overflow: hidden; }
+.s4 .code-header { background: #252830; padding: 10px 16px; display: flex; align-items: center; gap: 6px; }
+.s4 .code-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+.s4 .code-header span { color: #5F5E5A; font-size: 11px; margin-left: 8px; }
+.s4 pre { padding: 16px; font-size: 11px; line-height: 1.7; font-family: var(--font-mono); overflow-x: auto; color: #fafafa; }
+.kw { color: #C792EA; }
+.fn { color: #82AAFF; }
+.st { color: #C3E88D; }
+.cm { color: #546E7A; }
+.nm { color: #F78C6C; }
+
+.s5 { background: #0f1117; padding: 36px; justify-content: center; }
+.s5 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+.s5 .tag { font-size: 11px; color: #1D9E75; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.s5 h2 { font-size: 26px; font-weight: 700; color: #fafafa; margin-bottom: 20px; }
+.s5 .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.s5 .metric { background: #1a1d27; border: 0.5px solid #2d2d2d; border-radius: 12px; padding: 16px; text-align: center; }
+.s5 .metric .val { font-size: 30px; font-weight: 700; }
+.s5 .metric .lbl { font-size: 11px; color: #888780; margin-top: 4px; }
+.s5 .bar-section { background: #1a1d27; border: 0.5px solid #2d2d2d; border-radius: 12px; padding: 14px 16px; }
+.s5 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.s5 .bar-row:last-child { margin-bottom: 0; }
+.s5 .bar-label { font-size: 11px; color: #888780; width: 70px; flex-shrink: 0; }
+.s5 .bar-bg { flex: 1; height: 8px; background: #252830; border-radius: 4px; overflow: hidden; }
+.s5 .bar-fill { height: 100%; border-radius: 4px; }
+.s5 .bar-val { font-size: 11px; color: #fafafa; width: 32px; text-align: right; flex-shrink: 0; }
+
+.s6 { background: #0f1117; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+.s6 .slide-num { position: absolute; top: 20px; right: 20px; color: #5F5E5A; font-size: 12px; }
+.s6 .icon { width: 72px; height: 72px; background: rgba(29,158,117,0.15); border: 1px solid #1D9E75; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+.s6 h2 { font-size: 28px; font-weight: 700; color: #fafafa; margin-bottom: 12px; line-height: 1.3; }
+.s6 p { color: #888780; font-size: 14px; margin-bottom: 32px; line-height: 1.6; }
+.s6 .github-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fafafa; color: #0f1117; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 10px; border: none; cursor: pointer; width: 80%; margin: 0 auto; }
+.s6 .github-btn svg { flex-shrink: 0; }
+.s6 .author { position: absolute; bottom: 24px; left: 0; right: 0; color: #5F5E5A; font-size: 11px; }
+</style>
+
+<div class="carousel-wrapper">
+  <div class="nav">
+    <button class="active" onclick="showSlide(0)">Slide 1</button>
+    <button onclick="showSlide(1)">Slide 2</button>
+    <button onclick="showSlide(2)">Slide 3</button>
+    <button onclick="showSlide(3)">Slide 4</button>
+    <button onclick="showSlide(4)">Slide 5</button>
+    <button onclick="showSlide(5)">Slide 6</button>
+  </div>
+
+  <!-- Slide 1 -->
+  <div class="slide s1 active">
+    <span class="slide-num">1 / 6</span>
+    <div class="badge">ML PROJECT · LIVE</div>
+    <h1>I built a <span>Churn Prediction</span> Model — and it's LIVE 🚀</h1>
+    <p>XGBoost + SHAP + Streamlit · End-to-end ML pipeline for Telecom</p>
+    <div class="bottom">
+      <div class="dot a"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide s2">
+    <span class="slide-num">2 / 6</span>
+    <div class="tag">The Problem</div>
+    <h2>Telecom companies lose crores to churn — silently.</h2>
+    <div class="stat-row">
+      <div class="stat"><div class="num">5–7x</div><div class="lbl">Costlier to acquire<br>new customer</div></div>
+      <div class="stat"><div class="num">67%</div><div class="lbl">Of churn is<br>preventable</div></div>
+    </div>
+    <div class="insight"><p>Month-to-month customers, fiber optic users & manual payment users showed highest churn risk in my analysis.</p></div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide s3">
+    <span class="slide-num">3 / 6</span>
+    <div class="tag">The Pipeline</div>
+    <h2>End-to-end ML workflow</h2>
+    <div class="pipeline">
+      <div class="step"><div class="step-icon" style="background:rgba(29,158,117,0.15);">📥</div><div class="step-text"><div class="step-title">Data Preprocessing</div><div class="step-sub">Missing values · One-hot encoding · Feature engineering</div></div></div>
+      <div class="step"><div class="step-icon" style="background:rgba(55,138,221,0.15);">🔍</div><div class="step-text"><div class="step-title">EDA + Chi-square tests</div><div class="step-sub">Correlation heatmap · Churn distribution analysis</div></div></div>
+      <div class="step"><div class="step-icon" style="background:rgba(186,117,23,0.15);">🤖</div><div class="step-text"><div class="step-title">Model Training</div><div class="step-sub">LogReg → Random Forest → XGBoost (final)</div></div></div>
+      <div class="step"><div class="step-icon" style="background:rgba(226,75,74,0.15);">⚡</div><div class="step-text"><div class="step-title">SHAP Explainability</div><div class="step-sub">Waterfall plot · Feature importance per prediction</div></div></div>
+      <div class="step"><div class="step-icon" style="background:rgba(83,74,183,0.15);">🌐</div><div class="step-text"><div class="step-title">Streamlit Dashboard</div><div class="step-sub">Live predictions · Risk level · Retention actions</div></div></div>
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="slide s4">
+    <span class="slide-num">4 / 6</span>
+    <div class="tag">The Code</div>
+    <h2>Key prediction logic</h2>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dot" style="background:#E24B4A;"></div>
+        <div class="dot" style="background:#EF9F27;"></div>
+        <div class="dot" style="background:#639922;"></div>
+        <span>model.py — ChurnIQ</span>
+      </div>
+      <pre><span class="cm"># XGBoost + threshold optimization</span>
+<span class="kw">import</span> shap, joblib
+
+model = joblib.<span class="fn">load</span>(<span class="st">'xgboost_model.pkl'</span>)
+prob = model.<span class="fn">predict_proba</span>(input_df)[<span class="nm">0</span>][<span class="nm">1</span>]
+
+<span class="cm"># Risk classification</span>
+<span class="kw">if</span> prob > <span class="nm">0.65</span>:
+    risk = <span class="st">"High Risk"</span>
+    action = <span class="st">"Offer loyalty discount"</span>
+<span class="kw">elif</span> prob > <span class="nm">0.40</span>:
+    risk = <span class="st">"Medium Risk"</span>
+
+<span class="cm"># SHAP explanation</span>
+explainer = shap.<span class="fn">Explainer</span>(model)
+shap_values = explainer(input_df)
+shap.plots.<span class="fn">waterfall</span>(shap_values[<span class="nm">0</span>])</pre>
+    </div>
+  </div>
+
+  <!-- Slide 5 -->
+  <div class="slide s5">
+    <span class="slide-num">5 / 6</span>
+    <div class="tag">Model Performance</div>
+    <h2>Final results 📊</h2>
+    <div class="metrics">
+      <div class="metric"><div class="val" style="color:#1D9E75;">80%</div><div class="lbl">Accuracy</div></div>
+      <div class="metric"><div class="val" style="color:#378ADD;">73%</div><div class="lbl">Recall</div></div>
+      <div class="metric"><div class="val" style="color:#EF9F27;">0.66</div><div class="lbl">F1 Score</div></div>
+      <div class="metric"><div class="val" style="color:#C792EA;">0.60</div><div class="lbl">Precision</div></div>
+    </div>
+    <div class="bar-section">
+      <div class="bar-row"><span class="bar-label">Accuracy</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#1D9E75;"></div></div><span class="bar-val">80%</span></div>
+      <div class="bar-row"><span class="bar-label">Recall</span><div class="bar-bg"><div class="bar-fill" style="width:73%;background:#378ADD;"></div></div><span class="bar-val">73%</span></div>
+      <div class="bar-row"><span class="bar-label">F1 Score</span><div class="bar-bg"><div class="bar-fill" style="width:66%;background:#EF9F27;"></div></div><span class="bar-val">0.66</span></div>
+      <div class="bar-row"><span class="bar-label">Precision</span><div class="bar-bg"><div class="bar-fill" style="width:60%;background:#C792EA;"></div></div><span class="bar-val">0.60</span></div>
+    </div>
+  </div>
+
+  <!-- Slide 6 - Fixed CTA -->
+  <div class="slide s6">
+    <span class="slide-num">6 / 6</span>
+    <div class="icon">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="#1D9E75" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+      </svg>
+    </div>
+    <h2>Check it out on GitHub!</h2>
+    <p>Full code, notebook, dataset & Streamlit app — everything is open source.</p>
+    <button class="github-btn" onclick="openLink('https://github.com/rishabh8695/Customer-Churn-Predication')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#0f1117"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      Star on GitHub
+    </button>
+    <div class="author">Rishabh Gupta · Machine Learning | Data Science</div>
+  </div>
+</div>
+
+<script>
+function showSlide(idx) {
+  document.querySelectorAll('.slide').forEach((s,i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('.nav button').forEach((b,i) => b.classList.toggle('active', i === idx));
+}
+function openLink(url) { window.open(url, '_blank'); }
+</script>
