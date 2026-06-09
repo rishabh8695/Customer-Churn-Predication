@@ -192,43 +192,220 @@ if predict_btn:
 
     c1, c2 = st.columns(2)
 
-    # ── Reasons to churn
+# ── Human-readable feature name + business explanation mapping
+    FEATURE_EXPLAIN = {
+        # Risk-increasing (positive SHAP)
+        "Contract_Monthly": {
+            "name": "Month-to-Month Contract",
+            "risk": "Customer is on a month-to-month contract — no long-term commitment makes it very easy to leave.",
+        },
+        "InternetService_Fiber optic": {
+            "name": "Fiber Optic Internet",
+            "risk": "Fiber optic users have higher churn — likely due to higher cost and more competitive alternatives.",
+        },
+        "Tenure": {
+            "name": "Short Tenure",
+            "risk": "Customer has been with the company for only {val} months — new customers have significantly higher churn risk.",
+            "safe": "Customer has been with the company for {val} months — long-tenure customers are highly unlikely to leave.",
+        },
+        "MonthlyCharges": {
+            "name": "High Monthly Charges",
+            "risk": "Monthly charges are ₹{val} — high billing is a top driver of customer dissatisfaction and churn.",
+            "safe": "Monthly charges are ₹{val} — affordable pricing strongly reduces churn intent.",
+        },
+        "TotalCharges": {
+            "name": "Total Charges",
+            "risk": "Total charges of ₹{val} — customer may feel the accumulated cost is no longer worth it.",
+            "safe": "Total charges of ₹{val} reflect a long billing history — high-spend customers rarely churn.",
+        },
+        "PaperlessBilling": {
+            "name": "Paperless Billing",
+            "risk": "Paperless billing users tend to compare providers more actively, slightly increasing churn risk.",
+            "safe": "Paper billing customers tend to have lower churn rates.",
+        },
+        "SeniorCitizen": {
+            "name": "Senior Citizen",
+            "risk": "Senior citizens can be more sensitive to pricing changes, increasing churn risk.",
+            "safe": "Senior citizen loyalty patterns suggest this customer is well-retained.",
+        },
+        "TechSupport": {
+            "name": "No Tech Support",
+            "risk": "No tech support — unresolved technical issues are a very common churn trigger.",
+            "safe": "Customer has Tech Support — reduces frustration and significantly lowers churn.",
+        },
+        "OnlineSecurity": {
+            "name": "No Online Security",
+            "risk": "No Online Security — missing value-added services reduces the perceived benefit of staying.",
+            "safe": "Customer has Online Security — increases perceived value and reduces churn intent.",
+        },
+        "OnlineBackup": {
+            "name": "No Online Backup",
+            "risk": "No Online Backup — fewer bundled services means lower switching cost.",
+            "safe": "Customer has Online Backup — bundled services increase switching cost.",
+        },
+        "DeviceProtection": {
+            "name": "No Device Protection",
+            "risk": "No Device Protection — fewer services means easier to switch providers.",
+            "safe": "Customer has Device Protection — additional services strengthen loyalty.",
+        },
+        "MultipleLines": {
+            "name": "Multiple Lines",
+            "risk": "Single line customer — fewer services means lower switching cost.",
+            "safe": "Customer has Multiple Lines — deeply engaged with the service.",
+        },
+        "StreamingTV": {
+            "name": "Streaming TV",
+            "risk": "No Streaming TV — fewer services means lower switching cost.",
+            "safe": "Customer subscribes to Streaming TV — bundled services make switching harder.",
+        },
+        "StreamingMovies": {
+            "name": "Streaming Movies",
+            "risk": "No Streaming Movies — fewer value-added services reduces switching cost.",
+            "safe": "Customer subscribes to Streaming Movies — bundled services increase loyalty.",
+        },
+        "Contract_One year": {
+            "name": "One-Year Contract",
+            "risk": "No annual contract — absence of commitment increases churn risk.",
+            "safe": "Customer is on a one-year contract — annual commitment significantly reduces churn.",
+        },
+        "InternetService_DSL": {
+            "name": "DSL Internet",
+            "risk": "Non-DSL customer — billing or service factors are contributing to churn risk.",
+            "safe": "Customer uses DSL internet — DSL users show lower churn rates than fiber optic customers.",
+        },
+        "PaymentMethod_Bank transfer (automatic)": {
+            "name": "Auto Bank Transfer",
+            "risk": "No automatic bank transfer — manual payments are associated with higher billing friction.",
+            "safe": "Customer pays via automatic bank transfer — seamless billing strongly reduces churn.",
+        },
+        "PaymentMethod_Credit card (automatic)": {
+            "name": "Auto Credit Card",
+            "risk": "No automatic credit card — non-auto payments increase billing friction.",
+            "safe": "Customer pays via automatic credit card — auto-payment reduces involuntary churn.",
+        },
+        "Partner": {
+            "name": "No Partner",
+            "risk": "Single customers can be slightly more likely to switch providers.",
+            "safe": "Customer has a partner — partner accounts tend to be more stable.",
+        },
+        "Dependents": {
+            "name": "No Dependents",
+            "risk": "No dependents — accounts without families tend to be slightly more mobile.",
+            "safe": "Customer has dependents — family accounts are significantly more stable.",
+        },
+    }
+
+    def get_explanation(feature, shap_val, raw_val):
+        """Returns (display_name, sentence) for a given feature + shap direction."""
+        entry = FEATURE_EXPLAIN.get(feature, {})
+        display_name = entry.get("name", feature.replace("_", " "))
+        direction = "risk" if shap_val > 0 else "safe"
+        sentence = entry.get(direction, f"{display_name} is contributing to this prediction.")
+        # Fill numeric placeholders
+        sentence = sentence.replace("{val}", f"{int(raw_val)}" if feature == "Tenure" else f"{raw_val:.0f}")
+        return display_name, sentence
+
     with c1:
+        st.subheader("🚨 High-Risk Customer Indicators")
 
-        st.subheader(f"""🚨 High-Risk Customer Indicators""")
+        shown = 0
+        for i in range(len(increase_df)):
+            if shown >= 5:
+                break
+            feature  = increase_df.iloc[i]["Feature"]
+            shap_val = round(increase_df.iloc[i]["SHAP Value"], 3)
+            raw_val  = input_df.iloc[0].get(feature, 0) if hasattr(input_df, 'iloc') else 0
 
-        for i in range(min(5, len(increase_df))):
-            feature = increase_df.iloc[i]["Feature"]
-            value = round(increase_df.iloc[i]["SHAP Value"], 3)
+            display_name, sentence = get_explanation(feature, shap_val, raw_val)
 
-            # st.write(f"• {feature} (+{value})")
+            if shap_val >= 0.10:
+                st.markdown(
+                    f"<div style='background:#2a1515;border-left:3px solid #ef4444;"
+                    f"border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px;'>"
+                    f"<span style='font-size:11px;font-weight:600;color:#ef4444;'>🔴 High impact — {display_name}</span><br>"
+                    f"<span style='font-size:13px;color:#fafafa;'>{sentence}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+                shown += 1
+            elif shap_val >= 0.04:
+                st.markdown(
+                    f"<div style='background:#2a2010;border-left:3px solid #f59e0b;"
+                    f"border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px;'>"
+                    f"<span style='font-size:11px;font-weight:600;color:#f59e0b;'>🟡 Medium impact — {display_name}</span><br>"
+                    f"<span style='font-size:13px;color:#fafafa;'>{sentence}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+                shown += 1
 
-            if value>0.15:
-                st.warning(f"**⚠️ {feature} is strongly increasing the likelihood of customer churn.**")
-            elif value>0.07:
-                st.info(f"📌 {feature} is moderately contributing to churn risk.")
-
+        if shown == 0:
+            st.success("No significant risk-increasing factors detected.")
 
         st.markdown("</div>", unsafe_allow_html=True)
-
 
     # ── Reasons NOT to churn
     with c2:
         st.subheader("🔐 Reasons Customer May Stay")
 
-        for i in range(min(5, len(decrease_df))):
-            feature = decrease_df.iloc[i]["Feature"]
-            value = round(decrease_df.iloc[i]["SHAP Value"], 3)
+        shown = 0
+        for i in range(len(decrease_df)):
+            if shown >= 5:
+                break
+            feature  = decrease_df.iloc[i]["Feature"]
+            shap_val = round(decrease_df.iloc[i]["SHAP Value"], 3)
+            raw_val  = input_df.iloc[0].get(feature, 0) if hasattr(input_df, 'iloc') else 0
 
-            if value<-0.15:
-                st.success(f"✅ {feature} is strongly helping customer retention.")
-            elif value<-0.07:
-                st.info(f"💡 {feature} is moderately reducing churn risk.")
+            display_name, sentence = get_explanation(feature, shap_val, raw_val)
 
+            if shap_val <= -0.10:
+                st.markdown(
+                    f"<div style='background:#0d2a1e;border-left:3px solid #1d9e75;"
+                    f"border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px;'>"
+                    f"<span style='font-size:11px;font-weight:600;color:#1d9e75;'>🟢 Strong protector — {display_name}</span><br>"
+                    f"<span style='font-size:13px;color:#fafafa;'>{sentence}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+                shown += 1
+            elif shap_val <= -0.02:   # threshold kam kiya — ab chhote factors bhi dikhenge
+                st.markdown(
+                    f"<div style='background:#0d1e2a;border-left:3px solid #378ADD;"
+                    f"border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px;'>"
+                    f"<span style='font-size:11px;font-weight:600;color:#378ADD;'>🔵 Moderate protector — {display_name}</span><br>"
+                    f"<span style='font-size:13px;color:#fafafa;'>{sentence}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+                shown += 1
+
+        if shown == 0:
+            st.warning("No strong protective factors — customer is at elevated risk.")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # ── Verdict banner
+    n_risk = min(5, len(increase_df[increase_df["SHAP Value"] >= 0.04]))
+    n_safe = min(5, len(decrease_df[decrease_df["SHAP Value"] <= -0.02]))
 
+    if n_safe > n_risk:
+        v_color, v_icon = "#1d9e75", "🟢"
+        v_text = f"<b>{n_safe} protective factors</b> outweigh <b>{n_risk} risk factor(s)</b>. Customer is likely to stay — maintain their current experience."
+    elif n_risk > n_safe:
+        v_color, v_icon = "#ef4444", "🔴"
+        v_text = f"<b>{n_risk} risk factors</b> outweigh <b>{n_safe} protective factor(s)</b>. Immediate retention action is recommended."
+    else:
+        v_color, v_icon = "#f59e0b", "🟡"
+        v_text = f"Risk and protective factors are <b>balanced ({n_risk} each)</b>. Monitor this customer and consider a light-touch retention offer."
+
+    st.markdown(
+        f"<div style='background:#1a1d27;border:1px solid {v_color};border-radius:10px;"
+        f"padding:14px 18px;margin-top:8px;'>"
+        f"<span style='font-size:15px;font-weight:700;color:{v_color};'>{v_icon} Overall Verdict</span><br>"
+        f"<span style='font-size:13px;color:#fafafa;line-height:1.7;'>{v_text}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
 
 
